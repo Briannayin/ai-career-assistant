@@ -1,62 +1,102 @@
 from openai import OpenAI
 import streamlit as st
-
 from dotenv import load_dotenv
 import os
 
+# Load API Key
 load_dotenv()
 
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
+
+# --------------------------
+# Title
+# --------------------------
+
 st.title("AI Career Assistant")
 st.subheader("Analyze job descriptions with AI")
 
-# User input
-job_description = st.text_area(
-    "Job Description:",
-    "Please enter your job description"
+# --------------------------
+# Sidebar
+# --------------------------
+
+page = st.sidebar.radio(
+    "Navigation",
+    [
+        "Job Analyzer",
+        "My Profile"
+    ]
 )
-# Resume Upload
-uploaded_file = st.file_uploader(
-    "Upload Resume PDF",
-    type=["pdf"]
-)
 
-# OR Paste Resume
-resume = st.text_area(
-    label="Or Paste Resume Text:",
-    value=""
-)
-# Button
-if st.button("Compare this resume with the job description."):
+# ============================================================
+# Job Analyzer
+# ============================================================
 
-    prompt = f"""
-Analyze this job description.
+if page == "Job Analyzer":
 
-Give:
+    st.header("Job Analyzer")
 
-1. Match Score
-2. Matching skills
-3. Missing skills
-4. Suggestions for improvement
-
-JD:
-
-{job_description}
-
-
-Resume:
-{resume}
-
-"""
-    response = client.chat.completions.create(
-        model="gpt-4.1-mini",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
+    job_description = st.text_area(
+        "Job Description",
+        placeholder="Paste a job description here..."
     )
 
-    result = response.choices[0].message.content
+    if st.button("Analyze Job"):
 
-    st.markdown(result)
+        prompt = f"""
+You are an experienced technical recruiter.
+
+Analyze this job description.
+
+Please provide:
+
+1. Job Summary
+
+2. Core Skills
+
+3. Nice-to-have Skills
+
+4. Soft Skills
+
+5. Career Advice
+
+Job Description:
+
+{job_description}
+"""
+
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+
+        result = response.choices[0].message.content
+
+        st.markdown(result)
+
+# ============================================================
+# My Profile
+# ============================================================
+
+elif page == "My Profile":
+
+    st.header("My Profile")
+
+    uploaded_file = st.file_uploader(
+        "Upload CV PDF",
+        type=["pdf"]
+    )
+
+    resume = st.text_area(
+        "Or Paste CV Text"
+    )
+
+    if st.button("Save Profile"):
+
+        st.success("Coming Soon 🚀")
