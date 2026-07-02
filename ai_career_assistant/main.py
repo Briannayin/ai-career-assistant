@@ -25,7 +25,9 @@ page = st.sidebar.radio(
     "Navigation",
     [
         "Job Analyzer",
-        "My Profile"
+        "My Profile",
+        "Market Intelligence",
+        "Job Recommendation"
     ]
 )
 
@@ -45,21 +47,57 @@ if page == "Job Analyzer":
     if st.button("Analyze Job"):
 
         prompt = f"""
-You are an experienced technical recruiter.
+You are an experienced technical recruiter, hiring manager, and career advisor specializing in the technology industry.
 
-Analyze this job description.
+Analyze the following job description.
 
-Please provide:
+Return your response in Markdown format.
 
-1. Job Summary
+Use the following structure.
 
-2. Core Skills
+# Job Summary
 
-3. Nice-to-have Skills
+Summarize the role in 3-5 sentences.
 
-4. Soft Skills
+---
 
-5. Career Advice
+# Core Skills
+
+List the most important technical skills.
+
+---
+
+# Preferred Skills
+
+List optional or bonus skills.
+
+---
+
+# Soft Skills
+
+List important communication or business skills.
+
+---
+
+# Skill Gap
+
+This feature is not implemented yet.
+
+Output exactly:
+
+Coming Soon
+
+---
+
+# Suggested Learning
+
+This feature is not implemented yet.
+
+Output exactly:
+
+Coming Soon
+
+---
 
 Job Description:
 
@@ -93,10 +131,17 @@ elif page == "My Profile":
         type=["pdf"]
     )
 
-    resume = st.text_area(
+    CV = st.text_area(
         "Or Paste CV Text"
     )
 
     if st.button("Save Profile"):
 
-        st.success("Coming Soon 🚀")
+        st.success("Coming Soon")
+
+elif page == "Market Intelligence":
+    st.header("Market Intelligence")
+
+
+elif page == "Job Recommendation":
+    st.header("Job Recommendation")
