@@ -103,18 +103,18 @@ Job Description:
 
 {job_description}
 """
+        with st.spinner("Analyzing..."):
+            response = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            )
 
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        )
-
-        result = response.choices[0].message.content
+            result = response.choices[0].message.content
 
         st.markdown(result)
 
