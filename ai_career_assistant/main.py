@@ -2,6 +2,8 @@ from openai import OpenAI
 import streamlit as st
 from dotenv import load_dotenv
 import os
+import json
+
 
 # Load API Key
 load_dotenv()
@@ -51,51 +53,24 @@ You are an experienced technical recruiter, hiring manager, and career advisor s
 
 Analyze the following job description.
 
-Return your response in Markdown format.
+Return your response in valid JSON format.
+
+Do not include markdown.
+Do not include code blocks.
+Return JSON only.
 
 Use the following structure.
 
-# Job Summary
+Return JSON with this structure:
 
-Summarize the role in 3-5 sentences.
-
----
-
-# Core Skills
-
-List the most important technical skills.
-
----
-
-# Preferred Skills
-
-List optional or bonus skills.
-
----
-
-# Soft Skills
-
-List important communication or business skills.
-
----
-
-# Skill Gap
-
-This feature is not implemented yet.
-
-Output exactly:
-
-Coming Soon
-
----
-
-# Suggested Learning
-
-This feature is not implemented yet.
-
-Output exactly:
-
-Coming Soon
+{{
+  "job_summary":"",
+  "core_skills":[],
+  "preferred_skills": [],
+  "soft_skills": [],
+  "skill_gap": "Coming Soon",
+  "suggested_learning": "Coming Soon"
+}}
 
 ---
 
@@ -116,7 +91,22 @@ Job Description:
 
             result = response.choices[0].message.content
 
-        st.markdown(result)
+
+        data = json.loads(result)
+
+        st.subheader("Job Summary")
+        st.write(data["job_summary"])
+        st.subheader("Core Skills")
+        for skill in data["core_skills"]:
+            st.write(f"• {skill}")
+        st.subheader("Preferred Skills")
+
+        for skill in data["preferred_skills"]:
+            st.write(f"• {skill}")
+        st.subheader("Soft Skills")
+
+        for skill in data["soft_skills"]:
+            st.write(f"• {skill}")
 
 # ============================================================
 # My Profile
