@@ -125,9 +125,68 @@ elif page == "My Profile":
         "Or Paste CV Text"
     )
 
-    if st.button("Save Profile"):
+    if st.button("Generate Profile"):
 
-        st.success("Coming Soon")
+        prompt = f"""
+        Analyze the following CV.
+
+        Return your response in valid JSON format.
+        
+        Do not include markdown.
+        Do not include code blocks.
+        Return JSON only.
+        
+        Use the following structure.
+        
+        Return JSON with this structure:
+
+        {{
+            "name": "",
+            "experience": "",
+            "skills": [],
+            "languages": [],
+            "education": [],
+            "preferred_roles": []
+        }}
+        Resume:
+
+        {CV}"""
+        with st.spinner("Generating profile..."):
+
+            response = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            )
+
+            result = response.choices[0].message.content
+
+        data = json.loads(result)
+        st.subheader("AI Extracted Profile")
+
+        st.subheader("Name")
+        st.write(data["name"])
+        st.subheader("Experience")
+        st.write(data["experience"])
+        st.subheader("Skills")
+        for skill in data["skills"]:
+            st.write(f"• {skill}")
+        st.subheader("Languages")
+
+        for language in data["languages"]:
+            st.write(f"• {language}")
+        st.subheader("Education")
+
+        for edu in data["education"]:
+            st.write(edu["degree"])
+            st.write(edu["institution"])
+        st.subheader("Preferred Roles")
+        for role in data["preferred_roles"]:
+            st.write(f"• {role}")
 
 elif page == "Market Intelligence":
     st.header("Market Intelligence")
