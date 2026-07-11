@@ -3,6 +3,7 @@ import streamlit as st
 from dotenv import load_dotenv
 import os
 import json
+from pypdf import PdfReader
 
 
 # Load API Key
@@ -121,11 +122,25 @@ elif page == "My Profile":
         type=["pdf"]
     )
 
-    CV = st.text_area(
+    cv_text = st.text_area(
         "Or Paste CV Text"
     )
 
     if st.button("Generate Profile"):
+        if uploaded_file is not None:
+
+            reader = PdfReader(uploaded_file)
+
+            pdf_text = ""
+
+            for page in reader.pages:
+                pdf_text += page.extract_text()
+
+            resume_text = pdf_text
+
+        else:
+
+            resume_text = cv_text
 
         prompt = f"""
         Analyze the following CV.
@@ -150,7 +165,7 @@ elif page == "My Profile":
         }}
         Resume:
 
-        {CV}"""
+        {resume_text}"""
         with st.spinner("Generating profile..."):
 
             response = client.chat.completions.create(
