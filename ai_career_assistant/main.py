@@ -46,6 +46,9 @@ if page == "Job Analyzer":
         "Job Description",
         placeholder="Paste a job description here..."
     )
+    include_skill_gap = st.checkbox(
+        "Include Skill Gap Analysis"
+    )
 
     if st.button("Analyze Job"):
 
@@ -79,6 +82,7 @@ Job Description:
 
 {job_description}
 """
+
         with st.spinner("Analyzing..."):
             response = client.chat.completions.create(
                 model="gpt-4.1-mini",
@@ -125,6 +129,7 @@ elif page == "My Profile":
     cv_text = st.text_area(
         "Or Paste CV Text"
     )
+
 
     if st.button("Generate Profile"):
         if uploaded_file is not None:
@@ -181,6 +186,7 @@ elif page == "My Profile":
             result = response.choices[0].message.content
 
         data = json.loads(result)
+
         st.subheader("AI Extracted Profile")
 
         st.subheader("Name")
@@ -199,9 +205,17 @@ elif page == "My Profile":
         for edu in data["education"]:
             st.write(edu["degree"])
             st.write(edu["institution"])
-        st.subheader("Preferred Roles")
-        for role in data["preferred_roles"]:
-            st.write(f"• {role}")
+
+        if st.button("Save Profile"):
+            try:
+                with open("profile.json", "w") as f:
+                    json.dump(data, f, indent=4)
+
+                st.success("Profile saved successfully!")
+
+            except Exception as e:
+                st.error(f"Failed to save profile: {e}")
+
 
 elif page == "Market Intelligence":
     st.header("Market Intelligence")
