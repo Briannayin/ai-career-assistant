@@ -71,9 +71,7 @@ Return JSON with this structure:
   "job_summary":"",
   "core_skills":[],
   "preferred_skills": [],
-  "soft_skills": [],
-  "skill_gap": "Coming Soon",
-  "suggested_learning": "Coming Soon"
+  "soft_skills": []
 }}
 
 ---
@@ -112,6 +110,72 @@ Job Description:
 
         for skill in data["soft_skills"]:
             st.write(f"• {skill}")
+
+        if include_skill_gap:
+            if not os.path.exists("profile.json"):
+                st.warning(
+                    "Please create and save your profile first before using Skill Gap Analysis."
+                )
+            else:
+                try:
+                    with open("profile.json", "r") as f:
+                        profile_data = json.load(f)
+
+                    skill_gap_prompt = f"""
+Compare this candidate's skills with the skills needed for this job.
+
+Candidate skills:
+{profile_data["skills"]}
+
+Required job skills:
+{data["core_skills"]}
+
+Preferred job skills:
+{data["preferred_skills"]}
+
+Return your response in valid JSON format.
+Do not include markdown.
+Do not include code blocks.
+Return JSON only.
+
+Use this structure:
+
+{{
+  "matched_skills": [],
+  "missing_required_skills": [],
+  "missing_preferred_skills": []
+}}
+"""
+
+                    with st.spinner("Checking skill gaps..."):
+                        response = client.chat.completions.create(
+                            model="gpt-4.1-mini",
+                            messages=[
+                                {
+                                    "role": "user",
+                                    "content": skill_gap_prompt
+                                }
+                            ]
+                        )
+
+                        skill_gap_result = response.choices[0].message.content
+                        skill_gap_data = json.loads(skill_gap_result)
+
+                    st.subheader("Skill Gap Analysis")
+                    st.write("Matched Skills")
+                    for skill in skill_gap_data["matched_skills"]:
+                        st.write(f"- {skill}")
+
+                    st.write("Missing Required Skills")
+                    for skill in skill_gap_data["missing_required_skills"]:
+                        st.write(f"- {skill}")
+
+                    st.write("Missing Preferred Skills")
+                    for skill in skill_gap_data["missing_preferred_skills"]:
+                        st.write(f"- {skill}")
+
+                except Exception as e:
+                    st.error(f"Skill Gap Analysis failed: {e}")
 
 # ============================================================
 # My Profile
