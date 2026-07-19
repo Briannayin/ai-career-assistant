@@ -185,6 +185,52 @@ elif page == "My Profile":
 
     st.header("My Profile")
 
+    if os.path.exists("profile.json"):
+        try:
+            with open("profile.json", "r") as f:
+                saved_profile = json.load(f)
+
+            st.subheader("Saved Profile")
+            st.subheader("Name")
+            st.write(saved_profile.get("name", "No name recorded."))
+            st.subheader("Experience")
+            st.write(saved_profile.get("experience", "No experience recorded."))
+
+            st.subheader("Skills")
+            if saved_profile.get("skills"):
+                for skill in saved_profile["skills"]:
+                    st.write(f"- {skill}")
+            else:
+                st.write("No skills recorded.")
+
+            st.subheader("Languages")
+            if saved_profile.get("languages"):
+                for language in saved_profile["languages"]:
+                    st.write(f"- {language}")
+            else:
+                st.write("No languages recorded.")
+
+            st.subheader("Education")
+            if saved_profile.get("education"):
+                for edu in saved_profile["education"]:
+                    st.write(edu.get("degree", "No degree recorded."))
+                    st.write(edu.get("institution", "No institution recorded."))
+                    st.write(edu.get("period", ""))
+            else:
+                st.write("No education recorded.")
+
+            st.subheader("Preferred Roles")
+            if saved_profile.get("preferred_roles"):
+                for role in saved_profile["preferred_roles"]:
+                    st.write(f"- {role}")
+            else:
+                st.write("No preferred roles recorded.")
+
+        except Exception as e:
+            st.error(f"Saved profile could not be loaded: {e}")
+    else:
+        st.info("No saved profile yet. Upload a CV or paste CV text below to create one.")
+
     uploaded_file = st.file_uploader(
         "Upload CV PDF",
         type=["pdf"]
