@@ -69,6 +69,7 @@ Return JSON with this structure:
 
 {{
   "job_summary":"",
+  "seniority": "Entry-level, Junior, Mid-level, Senior, Lead, Manager, or Unknown",
   "core_skills":[],
   "preferred_skills": [],
   "soft_skills": []
@@ -96,6 +97,75 @@ Job Description:
 
 
         data = json.loads(result)
+
+        st.subheader("Job Seniority")
+        st.write(data.get("seniority", "Unknown"))
+
+        st.subheader("Match Score")
+        if not os.path.exists("profile.json"):
+            st.write("Create and save a profile to calculate your match score.")
+        else:
+            try:
+                with open("profile.json", "r") as f:
+                    profile_data = json.load(f)
+
+                match_score_prompt = f"""
+Compare this candidate with the job requirements.
+
+Candidate experience:
+{profile_data.get("experience", "")}
+
+Candidate skills:
+{profile_data.get("skills", [])}
+
+Required job skills:
+{data["core_skills"]}
+
+Preferred job skills:
+{data["preferred_skills"]}
+
+Recognize exact skill matches and closely related, transferable skills. Do not treat an
+unrelated skill as a match. Give core skills 70% of the score and preferred skills 30%.
+If only one group of job skills is present, use that group for 100% of the score.
+
+Return your response in valid JSON format.
+Do not include markdown.
+Do not include code blocks.
+Return JSON only.
+
+Use this structure:
+
+{{
+  "match_score": 0,
+  "match_explanation": "",
+  "transferable_skills": []
+}}
+"""
+
+                with st.spinner("Calculating match score..."):
+                    response = client.chat.completions.create(
+                        model="gpt-4.1-mini",
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": match_score_prompt
+                            }
+                        ]
+                    )
+
+                    match_score_result = response.choices[0].message.content
+                    match_score_data = json.loads(match_score_result)
+
+                st.write(f"{round(match_score_data['match_score'])}%")
+                st.write(match_score_data["match_explanation"])
+
+                if match_score_data["transferable_skills"]:
+                    st.write("Transferable Skills Considered")
+                    for skill in match_score_data["transferable_skills"]:
+                        st.write(f"- {skill}")
+
+            except Exception as e:
+                st.error(f"Match score could not be calculated: {e}")
 
         st.subheader("Job Summary")
         st.write(data["job_summary"])
