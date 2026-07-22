@@ -255,6 +255,9 @@ elif page == "My Profile":
 
     st.header("My Profile")
 
+    if "generated_profile" not in st.session_state:
+        st.session_state.generated_profile = None
+
     if os.path.exists("profile.json"):
         try:
             with open("profile.json", "r") as f:
@@ -366,7 +369,10 @@ elif page == "My Profile":
             result = response.choices[0].message.content
 
         data = json.loads(result)
+        st.session_state.generated_profile = data
 
+    if st.session_state.generated_profile is not None:
+        data = st.session_state.generated_profile
         st.subheader("AI Extracted Profile")
 
         st.subheader("Name")
